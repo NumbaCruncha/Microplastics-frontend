@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import { Button } from 'react-bootstrap';
 import axios from 'axios';
 import './LoginForm.css';
-import {API_BASE_URL, ACCESS_TOKEN_NAME} from '../../constants/apiConstants';
+import {API_URL, ACCESS_TOKEN_NAME} from '../../constants/apiConstants';
 import { withRouter } from "react-router-dom";
 
 
@@ -30,7 +30,7 @@ export default function LoginForm(props) {
             "username":state.username,
             "password":state.password,
         }
-        axios.post(API_BASE_URL+'/user/login', payload)
+        axios.post(API_URL+'/user/login', payload)
             .then(function (response) {
                 if(response.status === 200){
                     setState(prevState => ({

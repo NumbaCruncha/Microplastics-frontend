@@ -1,104 +1,139 @@
-import * as React from "react";
-import {
-  BrowserRouter as Router,
-  Switch,
+import React, { useState, useEffect } from "react";
+import {     Switch, BrowserRouter as Router,
+  StaticRouter, // for server rendering
   Route,
-  Link,
-  NavLink
-} from "react-router-dom";
+  Link } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.css";
 
-import './App.css';
-import  Jumbo   from './Components/Home/Home.js';
-import LoginForm from './Components/LoginForm/LoginForm.js';
-import Inputform from './Components/InputForm/InputForm.js';
-import Footer from './Components/Footer/Footer.js';
-import Header from './Components/Header/Header.js';
-import EditMap from './Components/EditMap/EditMap.js';
-import Map from './Components/Map/Map.js';
-import { Button, Navbar  } from 'react-bootstrap';
-// import { Link, Router } from "@reach/router";
+import Footer from "./components/Footer"
+import AuthService from "./services/auth.service";
+import Login from "./components/Login";
+import Register from "./components/Register";
+import Home from "./components/Home";
+import Profile from "./components/Profile";
+import Images from "./components/Images";
+import BoardUser from "./components/BoardUser";
+import BoardModerator from "./components/BoardModerator";
+import BoardAdmin from "./components/BoardAdmin";
 
+const App = () => {
+  const [showModeratorBoard, setShowModeratorBoard] = useState(false);
+  const [showAdminBoard, setShowAdminBoard] = useState(false);
+  const [currentUser, setCurrentUser] = useState(undefined);
 
-// function App() {
-//   return (
-//       <div>
-//           <Router>
-//             <Header path="/"/>
-            
-//           </Router>
-//         <Jumbo className="App"/>
-//         <LoginForm />
-//       </div>
-//   );
-// }
+  useEffect(() => {
+    const user = AuthService.getCurrentUser();
 
-// export default App;
+    if (user) {
+      setCurrentUser(user);
+      setShowModeratorBoard(user.roles.includes("ROLE_MODERATOR"));
+      setShowAdminBoard(user.roles.includes("ROLE_ADMIN"));
+    }
+  }, []);
 
-export default function App() {
+  const logOut = () => {
+    AuthService.logout();
+    // <Switch><Route exact path={["/", "/home"]} component={Home} /></Switch>
+    
+  };
+
   return (
-        
-      <div className="App">
+    
+      <Router>
+      <nav className="navbar navbar-expand navbar-light shadow-sm bg-light">
+        <Link to={"/"} className="navbar-brand">
+          MicroInvestigators
+        </Link>
+        <div className="navbar-nav mr-auto">
+          <li className="nav-item">
+            <Link to={"/home"} className="nav-link">
+              Home
+            </Link>
+          </li>
 
-          <Router>
-            <div >
-          
-          
-              <Link to="/">Home </Link>{' '}
-              <Link to="/login">Login </Link>{' '}
-              <Link to="/form">New Record</Link>
-          
-              {/*
-                A <Switch> looks through all its children <Route>
-                elements and renders the first one whose path
-                matches the current URL. Use a <Switch> any time
-                you have multiple routes, but you want only one
-                of them to render at a time
-              */}
-              <hr />
-              <Switch>
-                <Route exact path="/">
-                  <Home />
-                </Route>
-                <Route path="/login">
-                  <Login />
-                </Route>
-                <Route path="/form">
-                  <FormPage />
-                </Route>
-              </Switch>
-            </div>
-          </Router>
-          {/* <div><Footer/></div> */}
+          {showModeratorBoard && (
+            <li className="nav-item">
+              <Link to={"/mod"} className="nav-link">
+                Moderator Board
+              </Link>
+            </li>
+          )}
+
+          {showAdminBoard && (
+            <li className="nav-item">
+              <Link to={"/admin"} className="nav-link">
+                Admin Board
+              </Link>
+            </li>
+          )}
+
+          {currentUser && (
+            <li className="nav-item">
+              <Link to={"/user"} className="nav-link">
+                User
+              </Link>
+            </li>
+          )}
+        
+
+            {currentUser && (
+              <li className="nav-item">
+                <Link to={"/image"} className="nav-link">
+                  Images
+                </Link>
+              </li>
+            )}
+</div>
+        {currentUser ? (
+          <div className="navbar-nav ml-auto">
+            <li className="nav-item">
+              <Link to={"/profile"} className="nav-link">
+                {currentUser.username}
+              </Link>
+            </li>
+            <li className="nav-item">
+              <a href="/logout" className="nav-link" onClick={logOut}>
+                LogOut
+              </a>
+            </li>
+          </div>
+        ) : (
+          <div className="navbar-nav ml-auto">
+            <li className="nav-item">
+              <Link to={"/login"} className="nav-link">
+                Login
+              </Link>
+            </li>
+
+            <li className="nav-item">
+              <Link to={"/register"} className="nav-link">
+                Sign Up
+              </Link>
+            </li>
+          </div>
+        )}
+      </nav>
+      
+
+      <div className="container mt-3">
+        <Switch>
+          <Route exact path={["/", "/home"]} component={Home} />
+          <Route exact path="/login" component={Login} />
+          <Route exact path="/register" component={Register} />
+          <Route exact path="/profile" component={Profile} />
+          <Route exact path="/image" component={Images} />
+          <Route path="/user" component={BoardUser} />
+          <Route path="/mod" component={BoardModerator} />
+          <Route path="/admin" component={BoardAdmin} />
+        </Switch>      
         </div>
         
-  );
-}
+        {/* <Footer></Footer> */}
+        </Router>
 
-// You can think of these components as "pages"
-// in your app.
-
-function Home() {
-  return (
-
-    <div >
-      <Jumbo/>
-    </div>
-  
+         
   );
-} 
+};
 
-function Login() {
-  return (
-    <div>
-      <LoginForm />
-    </div>
-  );
-}
- 
-function FormPage() {
-  return (
-    <div className="App">
-      <Inputform/>
-    </div>
-  );
-}
+export default App;

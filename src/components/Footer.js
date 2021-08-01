@@ -69,7 +69,7 @@ export default function Footer() {
         </Row>
         
       </Container>
-      <h5 href="signal.co.nz"><a>Powered by @Signal</a></h5>
+      <h5 href="signal.co.nz"><a>Powered by @SigmaAnalytics</a></h5>
     </div>
   );
 };
